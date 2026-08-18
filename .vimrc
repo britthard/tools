@@ -1,3 +1,7 @@
+"<ctrl-/><ctrl-n> to change to normal mode in terminal
+"Configs
+let GITROOT = system("git rev-parse --show-toplevel")
+
 set textwidth=80
 set expandtab
 set foldmethod=indent
@@ -13,11 +17,23 @@ imap <Down> <NOP>
 imap <Left> <NOP>
 imap <Right> <NOP>
 set relativenumber
-set tags=tags;/
+set number
+
+"Tags
+function! UpdateCtags()
+    let l:root = substitute(system("git rev-parse --show-toplevel"), '\n', '', 'g')
+    if v:shell_error == 0
+        silent! execute "!ctags -f " . shellescape(l:root . "/tags") . " --recurse=yes " . shellescape(l:root)
+    endif
+endfunction
+
+autocmd BufWritePost *.c,*.h,*.go,*.py call UpdateCtags()
+set tags=./tags;
+
+set noundofile
 
 "Colors
-colorscheme kxxe
-set background=dark
+"set background=dark
 set t_Co=256
 
 "Deal with mac backspace problem.
@@ -33,25 +49,34 @@ highlight CursorLine ctermbg=23 cterm=NONE
 
 "Filetypes
 autocmd FileType javascript setlocal shiftwidth=2 tabstop=2
-autocmd FileType python setlocal shiftwidth=4 tabstop=4 
-autocmd FileType c setlocal shiftwidth=4 tabstop=4 
-autocmd FileType go setlocal shiftwidth=8 tabstop=8 
+autocmd FileType python setlocal shiftwidth=4 tabstop=4
+autocmd FileType c setlocal shiftwidth=4 tabstop=4
+autocmd FileType go setlocal shiftwidth=4 tabstop=4 noexpandtab
+autocmd FileType asm setlocal syntax=gas
 autocmd FileType html setlocal shiftwidth=2 tabstop=2
 autocmd FileType yaml setlocal shiftwidth=2 tabstop=2
 autocmd FileType rkt setlocal shiftwidth=4 tabstop=4
-autocmd FileType snippets setlocal shiftwidth=4 tabstop=4 
+autocmd FileType snippets setlocal shiftwidth=4 tabstop=4
+autocmd FileType rst setlocal shiftwidth=4 tabstop=4 noexpandtab
+autocmd FileType text setlocal shiftwidth=4 tabstop=4 wrapmargin=0 formatoptions+=t noexpandtab wrap linebreak nolist
+autocmd FileType sh setlocal shiftwidth=8 tabstop=8 noexpandtab
 
-"Configs
-let GITROOT = system("git rev-parse --show-toplevel")
 
 "Leaders and vimrc commands
 let mapleader=","
-nnoremap <Leader>ev :tabedit $MYVIMRC<cr>
-nnoremap <Leader>sv :source $MYVIMRC<cr>
+if has('win32')
+        set runtimepath^=$WINVIM
+        nnoremap <Leader>ev :tabedit $WINRC<cr>
+        nnoremap <Leader>sv :source $WINRC<cr>
+else
+        nnoremap <Leader>ev :tabedit $MYVIMRC<cr>
+        nnoremap <Leader>sv :source $MYVIMRC<cr>
+endif
+
 nnoremap <Leader>rtcl :term tclsh %<cr>
 nnoremap <Leader>rp :term python %<cr>
 nnoremap <Leader>rtp :term pytest %<cr>
-nnoremap <Leader>rip :vert term ipython -i %<cr>
+nnoremap <Leader>rip :term ipython -i %<cr>
 nnoremap <Leader>rg :term go run %<cr>
 nnoremap <Leader>drg :call GoDebug()<cr>
 nnoremap <Leader>rjs :term node %<cr>
@@ -61,12 +86,29 @@ nnoremap <Leader>rs :term scheme --quiet --load %<cr><c-d>
 nnoremap <Leader>am :call ApueMake()<cr><c-d>
 nnoremap <Leader>cm :call CMake()<cr><c-d>
 nnoremap <Leader>vcm :call VCMake()<cr><c-d>
-nnoremap <Leader>gr :cd `=GITROOT`<cr>:e 
-nnoremap <Leader>grt :cd `=GITROOT`<cr>:tabedit 
-nnoremap <Leader>grh :cd `=GITROOT`<cr>:sp 
-nnoremap <Leader>grv :cd `=GITROOT`<cr>:vs 
+nnoremap <Leader>gr :cd `=GITROOT`<cr>:e
+nnoremap <Leader>grt :cd `=GITROOT`<cr>:tabedit
+nnoremap <Leader>grh :cd `=GITROOT`<cr>:sp
+nnoremap <Leader>grv :cd `=GITROOT`<cr>:vs
+nnoremap <Leader>nc :call NCurses()<cr><c-d>
 
-call plug#begin('~/.vim/plugged')
+"Close parens, etc
+inoremap (<tab> ()<Left>
+inoremap {<tab> {}<Left>
+inoremap [<tab> []<Left>
+inoremap '<tab> ''<Left>
+inoremap "<tab> ""<Left>
+inoremap {<CR> {<CR>}<C-o>O
+inoremap (<CR> (<CR>)<C-o>O
+inoremap [<CR> [<CR>]<C-o>O
+inoremap '<CR> '<CR>'<C-o>O
+inoremap "<CR> "<CR>"<C-o>O
+
+if has('win32')
+        call plug#begin('$HOME\OneDrive - Whole Foods Market\Documents\vim\plugged')
+else
+        call plug#begin('~/.vim/plugged')
+endif
 
 Plug 'kien/rainbow_parentheses.vim'
 
@@ -74,6 +116,9 @@ au VimEnter * RainbowParenthesesToggle
 au Syntax * RainbowParenthesesLoadRound
 au Syntax * RainbowParenthesesLoadSquare
 au Syntax * RainbowParenthesesLoadBraces
+
+"Plug 'luochen1990/rainbow'
+"let g:rainbow_active = 1
 
 Plug 'tpope/vim-surround'
 Plug 'kien/ctrlp.vim'
@@ -84,9 +129,11 @@ Plug 'MarcWeber/vim-addon-mw-utils'
 Plug 'tomtom/tlib_vim'
 Plug 'garbas/vim-snipmate'
 Plug 'christoomey/vim-tmux-navigator'
+Plug 'Shirk/vim-gas'
+Plug 'nonetallt/vim-neon-dark', { 'tag': '2.1.0' }
 
 let g:airline#extensions#tabline#enabled = 1
-let g:airline_powerline_fonts = 1
+let g:airline_powerline_fonts = 0
 let g:airline_theme='simple'
 
 call plug#end()
@@ -119,3 +166,9 @@ endfun
 fun! GoDebug()
         term bash -c "go build -gcflags=all='-N -l'"
 endfun
+
+fun! NCurses()
+        term bash -c "gcc -Wall -g % -o a.out -lncurses && ./a.out"
+endfun
+
+colorscheme neon-dark

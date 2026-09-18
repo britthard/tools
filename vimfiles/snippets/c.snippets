@@ -2,17 +2,63 @@ snippet main
 	int
 	main(int argc, char *argv[])
 	{
-	    ${0}
-	    return 0;
+		${0}
+		return 0;
 	}
 
 snippet inc
 	#include <${1:stdio}.h>
 
+snippet Inc
+	#include "${1:stdio}.h"
+
 snippet ndef
 	#ifndef $1
-	#define ${1:SYMBOL} ${2:value}
+	#define ${1:SYMBOL}
 	#endif /* ifndef $1 */
+	
+snippet ifdef
+	#ifdef ${1:FOO}
+	${2:#define }
+	#endif
 
-snippet Inc
-	#include "${1:`vim_snippets#Filename("$1.h")`}"
+snippet def
+	#define 
+
+snippet if
+	if (${1:true}) {
+		${0:${VISUAL}}
+	}
+snippet ife
+	if (${1:true}) {
+		${2:${VISUAL}}
+	} else {
+		${0}
+	}
+# else
+snippet el
+	else {
+		${0:${VISUAL}}
+	}
+# else if
+snippet elif
+	else if (${1:true}) {
+		${0:${VISUAL}}
+	}
+
+snippet for
+	for (int ${2:i} = 0; $2 < ${1:count}; $2${3:++}) {
+		${4}
+	}
+
+snippet fun
+	${1:void}
+	${2:function_name}(${3})
+	{
+		${4}
+	}
+
+snippet tds
+	typedef struct ${1} {
+		${2}
+	} ${1};

@@ -50,7 +50,7 @@ highlight CursorLine ctermbg=23 cterm=NONE
 "Filetypes
 autocmd FileType javascript setlocal shiftwidth=2 tabstop=2
 autocmd FileType python setlocal shiftwidth=4 tabstop=4
-autocmd FileType c setlocal shiftwidth=4 tabstop=4
+autocmd FileType c setlocal shiftwidth=4 tabstop=4 noexpandtab
 autocmd FileType go setlocal shiftwidth=4 tabstop=4 noexpandtab
 autocmd FileType asm setlocal syntax=gas
 autocmd FileType html setlocal shiftwidth=2 tabstop=2
